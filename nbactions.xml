@@ -10,9 +10,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath be.bosa.kbo.query.Main c:\data\kbo\2020405_13H37_Requests_AllCategories.xlsx c:\data\kbo</exec.args>
+                <exec.args>-classpath %classpath be.bosa.kbo.query.Main c:\data\kbo\FOD_BOSA_2020_05_18_0654_PULL_SITUATION.xlsx c:\data\kbo\csv c:\data\kbo\output-3.xlsx</exec.args>
                 <exec.executable>java</exec.executable>
-                <exec.workingdir>c:\data\kbo</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -25,10 +25,10 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
             </goals>
             <properties>
-                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath be.bosa.kbo.query.Main c:\data\kbo\2020405_13H37_Requests_AllCategories.xlsx c:\data\kbo</exec.args>
+                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath be.bosa.kbo.query.Main c:\data\kbo\FOD_BOSA_2020_05_18_0654_PULL_SITUATION.xlsx c:\data\kbo\csv c:\data\kbo\output-3.xlsx</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
-                <exec.workingdir>c:\data\kbo</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -41,9 +41,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.5.0:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath be.bosa.kbo.query.Main c:\data\kbo\2020405_13H37_Requests_AllCategories.xlsx c:\data\kbo</exec.args>
+                <exec.args>-classpath %classpath be.bosa.kbo.query.Main c:\data\kbo\FOD_BOSA_2020_05_18_0654_PULL_SITUATION.xlsx c:\data\kbo\csv c:\data\kbo\output-3.xlsx</exec.args>
                 <exec.executable>java</exec.executable>
-                <exec.workingdir>c:\data\kbo</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
     </actions>

@@ -101,8 +101,8 @@ public class Main {
 		List<Row> rows = new ArrayList<>();
 		
 		try (InputStream is = Files.newInputStream(Paths.get(inFile))) {
-			XSSFWorkbook myWorkBook = new XSSFWorkbook(is); 
-			XSSFSheet mySheet = myWorkBook.getSheetAt(0);
+			XSSFWorkbook myWorkBook = new XSSFWorkbook(is);
+			XSSFSheet mySheet = myWorkBook.getSheetAt(1);
 			Iterator<Row> rowIterator = mySheet.iterator();
 
 			while (rowIterator.hasNext()) { 
@@ -140,8 +140,9 @@ public class Main {
 		for (int i = 0; i < rows.size(); i++) {
 			Row newRow = sheet.createRow(i);
 
-			// copy existing rows			
-			for (int j = 0; j < 9; j++) {
+			int cols = 13;
+			// copy existing rows and columns		
+			for (int j = 0; j < cols; j++) {
 				Cell cell = rows.get(i).getCell(j);
 				Cell newCell = newRow.createCell(j);
 				if (cell != null) {
@@ -155,15 +156,13 @@ public class Main {
 			}
 			
 			// add new columns about activities
-			Cell compcell = rows.get(i).getCell(4);
+			Cell compcell = rows.get(i).getCell(0);
 			if (compcell != null) {
-				String company = compcell.getStringCellValue();
-				if (company.startsWith("0.")) {
-					company = company.replaceFirst("0\\.", "0");
-				}
+				String str = compcell.getStringCellValue();
+				String company = getBCENumber(str);
 
 				if (vatActMain.containsKey(company)) {
-					Cell newCell = newRow.createCell(10);
+					Cell newCell = newRow.createCell(cols + 1);
 					newCell.setCellStyle(cs);
 					Collection<String> vals = vatActMain.get(company);
 					StringBuilder buf = new StringBuilder();
@@ -172,7 +171,7 @@ public class Main {
 					}
 					newCell.setCellValue(buf.toString());
 					
-					newCell = newRow.createCell(11);
+					newCell = newRow.createCell(cols + 2);
 					newCell.setCellStyle(cs);
 					vals = vatActMain.get(company);
 					buf = new StringBuilder();
@@ -182,7 +181,7 @@ public class Main {
 					newCell.setCellValue(buf.toString());
 				}
 				if (vatActSeco.containsKey(company)) {
-					Cell newCell = newRow.createCell(12);
+					Cell newCell = newRow.createCell(cols + 3);
 					newCell.setCellStyle(cs);
 					Collection<String> vals = vatActSeco.get(company);
 					StringBuilder buf = new StringBuilder();
@@ -191,7 +190,7 @@ public class Main {
 					}
 					newCell.setCellValue(buf.toString());
 					
-					newCell = newRow.createCell(13);
+					newCell = newRow.createCell(cols + 4);
 					newCell.setCellStyle(cs);
 					vals = vatActSeco.get(company);
 					buf = new StringBuilder();
@@ -202,7 +201,7 @@ public class Main {
 					
 				}
 				if (hActMain.containsKey(company)) {
-					Cell newCell = newRow.createCell(14);
+					Cell newCell = newRow.createCell(cols + 5);
 					newCell.setCellStyle(cs);
 					Collection<String> vals = hActMain.get(company);
 					StringBuilder buf = new StringBuilder();
@@ -211,7 +210,7 @@ public class Main {
 					}
 					newCell.setCellValue(buf.toString());
 					
-					newCell = newRow.createCell(15);
+					newCell = newRow.createCell(cols + 6);
 					newCell.setCellStyle(cs);
 					vals = hActMain.get(company);
 					buf = new StringBuilder();
@@ -221,7 +220,7 @@ public class Main {
 					newCell.setCellValue(buf.toString());
 				}
 				if (hActSeco.containsKey(company)) {
-					Cell newCell = newRow.createCell(16);
+					Cell newCell = newRow.createCell(cols + 7);
 					newCell.setCellStyle(cs);
 					Collection<String> vals = hActSeco.get(company);
 					StringBuilder buf = new StringBuilder();
@@ -230,7 +229,7 @@ public class Main {
 					}
 					newCell.setCellValue(buf.toString());
 					
-					newCell = newRow.createCell(17);
+					newCell = newRow.createCell(cols + 8);
 					newCell.setCellStyle(cs);
 					vals = hActSeco.get(company);
 					buf = new StringBuilder();
@@ -257,17 +256,49 @@ public class Main {
 	private static Set<String> getNrsToCheck(List<Row> rows) {
 		Set<String> nrs = new HashSet<>(2048);
 		for (Row row: rows) {
-			Cell cell = row.getCell(4);
+			Cell cell = row.getCell(0);
 			if (cell != null) {
-				String company = cell.getStringCellValue();
-				if (company.startsWith("0.")) {
-					company = company.replaceFirst("0\\.", "0");
+				System.err.println(cell);
+				String str = "";
+				if (cell.getCellTypeEnum().equals(CellType.STRING)) {
+					str = cell.getStringCellValue();
 				}
-				nrs.add(company);
+				if (cell.getCellTypeEnum().equals(CellType.NUMERIC)) {
+					str = Long.toString(Double.valueOf(cell.getNumericCellValue()).longValue());
+				}
+				String company = getBCENumber(str);
+				if (!str.isBlank()) {
+					nrs.add(company);
+				}
 			}
 		}
-		
 		return nrs;
+	}
+	
+	/**
+	 * Get company number, correcting minor variations
+	 * 
+	 * @param company
+	 * @return string
+	 */
+	private static String getBCENumber(String company) {
+		if (company.isBlank()) {
+			return "";
+		}
+		if (company.startsWith("BE0")) {
+			return company.substring(2);
+		}
+		if (company.matches("[a-zA-Z]+")) {
+			System.err.println("Malformed number " + company);
+			return "";
+		}
+		if (company.startsWith("0.")) {
+			return company.replaceFirst("0\\.", "0");
+		}
+		if (!company.startsWith("0")) {
+			return "0" + company;
+		}
+		return company;
 	}
 
 	/**
