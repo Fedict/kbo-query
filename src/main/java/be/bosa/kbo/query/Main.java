@@ -140,7 +140,7 @@ public class Main {
 		for (int i = 0; i < rows.size(); i++) {
 			Row newRow = sheet.createRow(i);
 
-			int cols = 13;
+			int cols = 17;
 			// copy existing rows and columns		
 			for (int j = 0; j < cols; j++) {
 				Cell cell = rows.get(i).getCell(j);
