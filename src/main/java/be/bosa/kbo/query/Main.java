@@ -156,9 +156,9 @@ public class Main {
 			}
 			
 			// add new columns about activities
-			Cell compcell = rows.get(i).getCell(0);
+			Cell compcell = rows.get(i).getCell(3);
 			if (compcell != null) {
-				String str = compcell.getStringCellValue();
+				String str = cellToString(compcell);
 				String company = getBCENumber(str);
 
 				if (vatActMain.containsKey(company)) {
@@ -241,7 +241,7 @@ public class Main {
 			}
 		}
 
-		try (OutputStream os = Files.newOutputStream(Paths.get(outDir, file))) {
+		try (OutputStream os = Files.newOutputStream(Paths.get(file))) {
 			wb.write(os);
 		}
 		wb.close();
@@ -256,16 +256,9 @@ public class Main {
 	private static Set<String> getNrsToCheck(List<Row> rows) {
 		Set<String> nrs = new HashSet<>(2048);
 		for (Row row: rows) {
-			Cell cell = row.getCell(0);
+			Cell cell = row.getCell(3);
 			if (cell != null) {
-				System.err.println(cell);
-				String str = "";
-				if (cell.getCellTypeEnum().equals(CellType.STRING)) {
-					str = cell.getStringCellValue();
-				}
-				if (cell.getCellTypeEnum().equals(CellType.NUMERIC)) {
-					str = Long.toString(Double.valueOf(cell.getNumericCellValue()).longValue());
-				}
+				String str = cellToString(cell);
 				String company = getBCENumber(str);
 				if (!str.isBlank()) {
 					nrs.add(company);
@@ -273,6 +266,24 @@ public class Main {
 			}
 		}
 		return nrs;
+	}
+
+	/**
+	 * Convert cell to string value
+	 * 
+	 * @param cell
+	 * @return 
+	 */
+	private static String cellToString(Cell cell) {
+		System.err.println(cell);
+		String str = "";
+		if (cell.getCellTypeEnum().equals(CellType.STRING)) {
+			str = cell.getStringCellValue();
+		}
+		if (cell.getCellTypeEnum().equals(CellType.NUMERIC)) {
+			str = Long.toString(Double.valueOf(cell.getNumericCellValue()).longValue());
+		}
+		return str;
 	}
 	
 	/**
@@ -285,18 +296,22 @@ public class Main {
 		if (company.isBlank()) {
 			return "";
 		}
-		if (company.startsWith("BE0")) {
-			return company.substring(2);
+		company = company.replaceAll(" ", "");
+		if (company.startsWith("BE0") || company.startsWith("Be0")) {
+			company = company.substring(2);
 		}
-		if (company.matches("[a-zA-Z]+")) {
+		if (company.matches("^[a-zA-Z]+")) {
 			System.err.println("Malformed number " + company);
 			return "";
 		}
 		if (company.startsWith("0.")) {
-			return company.replaceFirst("0\\.", "0");
+			company = company.replaceFirst("0\\.", "0");
 		}
 		if (!company.startsWith("0")) {
-			return "0" + company;
+			company = "0" + company;
+		}
+		if ((!company.contains(".")) && company.length() == 10) {
+			company = company.substring(0, 4) + "." + company.substring(4, 7) + "." + company.substring(7);
 		}
 		return company;
 	}
